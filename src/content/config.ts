@@ -6,8 +6,9 @@ const digests = defineCollection({
     title: z.string(),
     date: z.date(),
     sections: z.array(z.object({
-      icon: z.string(), // section identifier for CSS icon: "ai-agents", "claudecode", "saas", "digitalmarketing", "philosophy"
+      icon: z.string(),
       name: z.string(),
+      image: z.string().optional(), // path to section hero image
       posts: z.array(z.object({
         title: z.string(),
         score: z.number(),

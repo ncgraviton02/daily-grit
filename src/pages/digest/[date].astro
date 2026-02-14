@@ -41,6 +41,13 @@ const sectionLabels: Record<string, string> = {
           </div>
         </div>
         
+        {/* Section hero image */}
+        {section.image && (
+          <div class="section-image">
+            <img src={section.image} alt={`Editorial illustration for ${section.name}`} loading="lazy" />
+          </div>
+        )}
+
         {/* Lead story — full width */}
         {section.posts[0] && (
           <article class="post post-lead">
@@ -169,6 +176,28 @@ const sectionLabels: Record<string, string> = {
     font-size: 0.75rem;
     color: var(--ink-faint);
     letter-spacing: 0.05em;
+  }
+
+  /* Section hero image */
+  .section-image {
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    max-height: 320px;
+  }
+
+  .section-image img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(30%) contrast(1.05);
+  }
+
+  @media (max-width: 768px) {
+    .section-image, .section-image img {
+      max-height: 200px;
+      height: 200px;
+    }
   }
 
   /* Lead story — full width, prominent */
