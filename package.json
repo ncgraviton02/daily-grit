@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "validate": "bash scripts/validate-links.sh dist",
+    "deploy": "astro build && bash scripts/validate-links.sh dist && wrangler pages deploy dist --project-name graviton --commit-dirty=true",
     "preview": "astro preview",
     "astro": "astro"
   },
