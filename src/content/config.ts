@@ -15,6 +15,31 @@ const digests = defineCollection({
       portrait: z.string(),    // path to line art portrait
       story: z.string(),       // 3-4 paragraph story
     }).optional(),
+    headlines: z.array(z.object({
+      title: z.string(),
+      source: z.string(),
+      url: z.string(),
+      summary: z.string(),
+      author: z.string().optional()
+    })).optional(),
+    deepReads: z.array(z.object({
+      title: z.string(),
+      source: z.string(),
+      url: z.string(),
+      summary: z.string()
+    })).optional(),
+    launches: z.array(z.object({
+      name: z.string(),
+      tagline: z.string(),
+      url: z.string(),
+      upvotes: z.number()
+    })).optional(),
+    watchLater: z.array(z.object({
+      title: z.string(),
+      channel: z.string(),
+      url: z.string(),
+      summary: z.string()
+    })).optional(),
     sections: z.array(z.object({
       icon: z.string(),
       name: z.string(),

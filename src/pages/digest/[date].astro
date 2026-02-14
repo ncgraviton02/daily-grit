@@ -58,6 +58,99 @@ const sectionLabels: Record<string, string> = {
         )}
       </section>
     )}
+
+    {/* Headlines Section */}
+    {data.headlines && data.headlines.length > 0 && (
+      <section class="headlines-section">
+        <div class="section-rule-container">
+          <hr class="section-rule" />
+          <div class="section-label-row">
+            <span class="section-label">Headlines</span>
+            <span class="section-source">Front Page</span>
+          </div>
+        </div>
+        
+        {/* Lead headline */}
+        {data.headlines[0] && (
+          <article class="headline headline-lead">
+            <h2 class="headline-title">
+              <a href={data.headlines[0].url} target="_blank" rel="noopener noreferrer">
+                {data.headlines[0].title}
+              </a>
+            </h2>
+            <div class="headline-meta">
+              <a href={data.headlines[0].url} class="headline-source" target="_blank" rel="noopener noreferrer">
+                {data.headlines[0].source}
+              </a>
+              {data.headlines[0].author && (
+                <>
+                  <span class="headline-meta-sep">&middot;</span>
+                  <span class="headline-author">{data.headlines[0].author}</span>
+                </>
+              )}
+            </div>
+            <p class="headline-summary">{data.headlines[0].summary}</p>
+          </article>
+        )}
+
+        {/* Remaining headlines in grid */}
+        {data.headlines.length > 1 && (
+          <div class="headlines-grid">
+            {data.headlines.slice(1).map((headline) => (
+              <article class="headline headline-standard">
+                <h3 class="headline-title">
+                  <a href={headline.url} target="_blank" rel="noopener noreferrer">
+                    {headline.title}
+                  </a>
+                </h3>
+                <div class="headline-meta">
+                  <a href={headline.url} class="headline-source" target="_blank" rel="noopener noreferrer">
+                    {headline.source}
+                  </a>
+                  {headline.author && (
+                    <>
+                      <span class="headline-meta-sep">&middot;</span>
+                      <span class="headline-author">{headline.author}</span>
+                    </>
+                  )}
+                </div>
+                <p class="headline-summary">{headline.summary}</p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    )}
+
+    {/* Deep Reads Section */}
+    {data.deepReads && data.deepReads.length > 0 && (
+      <section class="deep-reads-section">
+        <div class="section-rule-container">
+          <hr class="section-rule" />
+          <div class="section-label-row">
+            <span class="section-label">Deep Reads</span>
+            <span class="section-source">Analysis</span>
+          </div>
+        </div>
+        
+        {data.deepReads.map((read, index) => (
+          <article class="deep-read">
+            {index > 0 && <hr class="deep-read-rule" />}
+            <h3 class="deep-read-title">
+              <a href={read.url} target="_blank" rel="noopener noreferrer">
+                {read.title}
+              </a>
+            </h3>
+            <div class="deep-read-meta">
+              <a href={read.url} class="deep-read-source" target="_blank" rel="noopener noreferrer">
+                {read.source}
+              </a>
+            </div>
+            <p class="deep-read-summary">{read.summary}</p>
+          </article>
+        ))}
+      </section>
+    )}
     
     {data.sections.map((section, si) => (
       <section class="section">
@@ -139,6 +232,60 @@ const sectionLabels: Record<string, string> = {
         )}
       </section>
     ))}
+
+    {/* Launches Section */}
+    {data.launches && data.launches.length > 0 && (
+      <section class="launches-section">
+        <div class="section-rule-container">
+          <hr class="section-rule" />
+          <div class="section-label-row">
+            <span class="section-label">Launches</span>
+            <span class="section-source">Product Hunt</span>
+          </div>
+        </div>
+        
+        <div class="launches-grid">
+          {data.launches.map((launch) => (
+            <article class="launch-card">
+              <h4 class="launch-name">
+                <a href={launch.url} target="_blank" rel="noopener noreferrer">
+                  {launch.name}
+                </a>
+              </h4>
+              <p class="launch-tagline">{launch.tagline}</p>
+              <div class="launch-upvotes">{launch.upvotes} upvotes</div>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {/* Watch Later Section */}
+    {data.watchLater && data.watchLater.length > 0 && (
+      <section class="watch-later-section">
+        <div class="section-rule-container">
+          <hr class="section-rule" />
+          <div class="section-label-row">
+            <span class="section-label">Watch Later</span>
+            <span class="section-source">YouTube</span>
+          </div>
+        </div>
+        
+        <div class="watch-later-list">
+          {data.watchLater.map((video) => (
+            <article class="watch-item">
+              <div class="watch-channel">{video.channel}</div>
+              <h4 class="watch-title">
+                <a href={video.url} target="_blank" rel="noopener noreferrer">
+                  {video.title}
+                </a>
+              </h4>
+              <p class="watch-summary">{video.summary}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
     
     <nav class="digest-nav">
       <hr class="nav-rule" />
@@ -541,5 +688,275 @@ const sectionLabels: Record<string, string> = {
     .digest-title {
       font-size: 1.5rem;
     }
+
+    .headlines-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .headlines-grid .headline-standard {
+      padding-right: 0;
+      border-right: none;
+    }
+
+    .launches-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Headlines Section */
+  .headlines-section {
+    margin-bottom: 3rem;
+  }
+
+  .headline-lead {
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--rule-light);
+  }
+
+  .headline-lead .headline-title {
+    font-family: var(--display);
+    font-size: 1.9rem;
+    font-weight: 900;
+    line-height: 1.2;
+    margin: 0 0 0.5rem;
+  }
+
+  .headlines-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .headlines-grid .headline-standard:nth-child(odd) {
+    padding-right: 2rem;
+    border-right: 1px solid var(--rule-light);
+  }
+
+  .headlines-grid .headline-standard:nth-child(even) {
+    padding-left: 2rem;
+  }
+
+  .headline-standard .headline-title {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 0.4rem;
+  }
+
+  .headline-title a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .headline-title a:hover {
+    color: var(--crimson);
+  }
+
+  .headline-meta {
+    margin-bottom: 0.75rem;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+  }
+
+  .headline-source {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    text-decoration: none;
+  }
+
+  .headline-source:hover {
+    color: var(--crimson);
+  }
+
+  .headline-meta-sep {
+    margin: 0 0.35rem;
+  }
+
+  .headline-author {
+    font-style: italic;
+  }
+
+  .headline-summary {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink-light);
+  }
+
+  .headline-lead .headline-summary {
+    font-size: 1.05rem;
+  }
+
+  /* Deep Reads Section */
+  .deep-reads-section {
+    margin-bottom: 3rem;
+  }
+
+  .deep-read {
+    padding: 1.5rem 0;
+  }
+
+  .deep-read:first-child {
+    padding-top: 0;
+  }
+
+  .deep-read-rule {
+    border: none;
+    height: 1px;
+    background: var(--rule-light);
+    margin: 0 0 1.5rem;
+  }
+
+  .deep-read-title {
+    font-family: var(--display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 0.4rem;
+  }
+
+  .deep-read-title a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .deep-read-title a:hover {
+    color: var(--crimson);
+  }
+
+  .deep-read-meta {
+    margin-bottom: 0.75rem;
+  }
+
+  .deep-read-source {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    text-decoration: none;
+  }
+
+  .deep-read-source:hover {
+    color: var(--crimson);
+  }
+
+  .deep-read-summary {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--ink-light);
+  }
+
+  /* Launches Section */
+  .launches-section {
+    margin-bottom: 3rem;
+  }
+
+  .launches-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .launch-card {
+    padding: 1.25rem;
+    border: 1px solid var(--rule-light);
+    background: var(--paper-warm);
+  }
+
+  .launch-name {
+    font-family: var(--display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    line-height: 1.25;
+  }
+
+  .launch-name a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .launch-name a:hover {
+    color: var(--crimson);
+  }
+
+  .launch-tagline {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--ink-light);
+    margin: 0 0 0.75rem;
+  }
+
+  .launch-upvotes {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--crimson);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Watch Later Section */
+  .watch-later-section {
+    margin-bottom: 3rem;
+  }
+
+  .watch-later-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .watch-item {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--rule-faint);
+  }
+
+  .watch-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .watch-channel {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+    margin-bottom: 0.4rem;
+  }
+
+  .watch-title {
+    font-family: var(--display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    line-height: 1.25;
+  }
+
+  .watch-title a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .watch-title a:hover {
+    color: var(--crimson);
+  }
+
+  .watch-summary {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--ink-light);
   }
 </style>

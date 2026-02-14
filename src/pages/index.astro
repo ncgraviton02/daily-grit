@@ -43,8 +43,10 @@ const sectionLabels: Record<string, string> = {
   <!-- Latest digest hero -->
   {sortedDigests.length > 0 && (() => {
     const latest = sortedDigests[0];
+    const leadHeadline = latest.data.headlines?.[0];
     const leadSection = latest.data.sections[0];
     const leadPost = leadSection?.posts[0];
+    const topStory = leadHeadline || leadPost;
     return (
       <section class="hero">
         <div class="hero-lead">
@@ -52,19 +54,31 @@ const sectionLabels: Record<string, string> = {
           <h2 class="hero-headline">
             <a href={`/digest/${latest.slug}`}>{latest.data.title}</a>
           </h2>
-          {leadPost && (
+          {topStory && (
             <p class="hero-summary">
-              <strong>{leadPost.title}</strong> &mdash; {leadPost.summary.slice(0, 200)}...
+              <strong>{topStory.title}</strong> &mdash; {topStory.summary.slice(0, 200)}...
             </p>
           )}
           <a href={`/digest/${latest.slug}`} class="hero-read">Read this edition &#8599;</a>
         </div>
         <div class="hero-sidebar">
-          <h4 class="hero-sidebar-title">Also in this edition</h4>
+          <h4 class="hero-sidebar-title">In this edition</h4>
           <ul class="hero-topics">
+            {latest.data.headlines && latest.data.headlines.length > 0 && (
+              <li class="hero-topic">Headlines: {latest.data.headlines.length} stories</li>
+            )}
+            {latest.data.deepReads && latest.data.deepReads.length > 0 && (
+              <li class="hero-topic">Deep Reads: {latest.data.deepReads.length} analysis pieces</li>
+            )}
             {latest.data.sections.map(s => (
               <li class="hero-topic">{sectionLabels[s.icon] || s.name}: {s.posts[0]?.title}</li>
             ))}
+            {latest.data.launches && latest.data.launches.length > 0 && (
+              <li class="hero-topic">Launches: {latest.data.launches.length} products</li>
+            )}
+            {latest.data.watchLater && latest.data.watchLater.length > 0 && (
+              <li class="hero-topic">Watch Later: {latest.data.watchLater.length} videos</li>
+            )}
           </ul>
         </div>
       </section>
@@ -100,6 +114,11 @@ const sectionLabels: Record<string, string> = {
           const d = new Date(digest.data.date);
           const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
           const monthDay = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          const totalStories = (digest.data.headlines?.length || 0) + 
+                               (digest.data.deepReads?.length || 0) + 
+                               (digest.data.launches?.length || 0) + 
+                               (digest.data.watchLater?.length || 0) +
+                               digest.data.sections.reduce((sum, s) => sum + s.posts.length, 0);
           return (
             <a href={`/digest/${digest.slug}`} class="edition-row">
               <span class="edition-date">
@@ -107,11 +126,23 @@ const sectionLabels: Record<string, string> = {
                 <span class="edition-monthday">{monthDay}</span>
               </span>
               <span class="edition-sections">
+                {digest.data.headlines && digest.data.headlines.length > 0 && (
+                  <span class="edition-tag">Headlines</span>
+                )}
+                {digest.data.deepReads && digest.data.deepReads.length > 0 && (
+                  <span class="edition-tag">Analysis</span>
+                )}
                 {digest.data.sections.map(s => (
                   <span class="edition-tag">{sectionLabels[s.icon] || s.name}</span>
                 ))}
+                {digest.data.launches && digest.data.launches.length > 0 && (
+                  <span class="edition-tag">Launches</span>
+                )}
+                {digest.data.watchLater && digest.data.watchLater.length > 0 && (
+                  <span class="edition-tag">Videos</span>
+                )}
               </span>
-              <span class="edition-count">{digest.data.sections.reduce((sum, s) => sum + s.posts.length, 0)} stories</span>
+              <span class="edition-count">{totalStories} stories</span>
             </a>
           );
         })}
