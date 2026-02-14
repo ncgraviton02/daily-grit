@@ -12,376 +12,354 @@ export async function getStaticPaths() {
 }
 
 const { digest } = Astro.props;
-const { data, render } = digest;
-const { Content } = await render();
+const { data } = digest;
 
-const sectionIcons: Record<string, string> = {
-  'ai-agents': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M12 4V2"/><path d="M9 5.5L7.5 4"/><path d="M15 5.5L16.5 4"/></svg>`,
-  'claudecode': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>`,
-  'saas': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
-  'digitalmarketing': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
-  'philosophy': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+const sectionLabels: Record<string, string> = {
+  'ai-agents': 'Artificial Intelligence',
+  'claudecode': 'Developer Tools',
+  'saas': 'Business & Startups',
+  'digitalmarketing': 'Marketing & Growth',
+  'philosophy': 'Ideas & Philosophy',
 };
 ---
 
 <BaseLayout title={`${data.title} | The Daily Grit`}>
   <Masthead date={data.date.toISOString()} showTagline={false} />
   
-  <article class="digest-article">
-    <header class="article-header">
-      <h1 class="article-title">{data.title}</h1>
+  <article class="digest">
+    <header class="digest-header">
+      <h1 class="digest-title">{data.title}</h1>
     </header>
     
-    <div class="article-content">
-      {data.sections.map((section) => (
-        <section class="news-section">
-          <header class="section-header">
-            <h2 class="section-title">
-              <span class="section-icon" set:html={sectionIcons[section.icon] || ''} />
-              {section.name}
-            </h2>
-            <hr class="section-divider" />
-          </header>
-          
-          <div class="posts-grid">
-            {section.posts.map((post) => (
-              <article class="post-article">
-                <header class="post-header">
-                  <h3 class="post-title">
-                    {post.permalink ? (
-                      <a href={post.permalink} target="_blank" rel="noopener noreferrer">{post.title}</a>
-                    ) : post.title}
-                  </h3>
-                  <div class="post-meta">
-                    <span class="score">
-                      <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-                      {post.score.toLocaleString()}
-                    </span>
-                    <span class="comments">
-                      <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                      {post.comments}
-                    </span>
-                  </div>
-                </header>
-                
-                <div class="post-content">
-                  <p class="post-summary">{post.summary}</p>
-                  
-                  {post.topComments && post.topComments.length > 0 && (
-                    <div class="top-comments">
-                      <h4 class="comments-header">Notable Voices</h4>
-                      {post.topComments.map((comment) => (
-                        <blockquote class="comment-quote">
-                          <div class="comment-attribution">
-                            <span class="comment-author">{comment.author}</span>
-                            {comment.score !== undefined && (
-                              <span class="comment-score">
-                                <svg class="meta-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-                                {comment.score}
-                              </span>
-                            )}
-                          </div>
-                          <p>{comment.text}</p>
-                        </blockquote>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {post.permalink && (
-                    <a href={post.permalink} class="read-thread" target="_blank" rel="noopener noreferrer">
-                      Read full thread
-                      <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                    </a>
-                  )}
-                </div>
-              </article>
-            ))}
+    {data.sections.map((section, si) => (
+      <section class="section">
+        <div class="section-rule-container">
+          <hr class="section-rule" />
+          <div class="section-label-row">
+            <span class="section-label">{sectionLabels[section.icon] || section.name}</span>
+            <span class="section-source">{section.name}</span>
           </div>
-        </section>
-      ))}
-    </div>
+        </div>
+        
+        <div class={`section-posts ${section.posts.length >= 3 ? 'layout-featured' : 'layout-standard'}`}>
+          {section.posts.map((post, pi) => (
+            <article class={`post ${pi === 0 && section.posts.length >= 3 ? 'post-lead' : 'post-standard'}`}>
+              <h3 class="post-headline">
+                {post.permalink ? (
+                  <a href={post.permalink} target="_blank" rel="noopener noreferrer">{post.title}</a>
+                ) : post.title}
+              </h3>
+              
+              <div class="post-stats">
+                <span class="stat">{post.score} points</span>
+                <span class="stat-sep">&middot;</span>
+                <span class="stat">{post.comments} comments</span>
+              </div>
+              
+              <p class="post-body">{post.summary}</p>
+              
+              {post.topComments && post.topComments.length > 0 && (
+                <div class="voices">
+                  {post.topComments.map((c) => (
+                    <blockquote class="voice">
+                      <p class="voice-text">{c.text}</p>
+                      <cite class="voice-cite">
+                        &mdash; {c.author}
+                        {c.score !== undefined && <span class="voice-score">{c.score} pts</span>}
+                      </cite>
+                    </blockquote>
+                  ))}
+                </div>
+              )}
+              
+              {post.permalink && (
+                <a href={post.permalink} class="thread-link" target="_blank" rel="noopener noreferrer">
+                  Read full thread &#8599;
+                </a>
+              )}
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
     
-    <footer class="article-footer">
-      <nav class="article-nav">
-        <a href="/" class="nav-link">Back to Calendar</a>
-      </nav>
-    </footer>
+    <nav class="digest-nav">
+      <hr class="nav-rule" />
+      <a href="/" class="back-link">&larr; Back to Archives</a>
+    </nav>
   </article>
 </BaseLayout>
 
 <style>
-  .digest-article {
-    max-width: 1200px;
+  .digest {
+    max-width: 1100px;
     margin: 0 auto;
-    background: white;
   }
 
-  .article-header {
+  .digest-header {
     text-align: center;
-    margin-bottom: 3rem;
-    padding-bottom: 2rem;
-    border-bottom: 2px solid var(--border-color);
-  }
-
-  .article-title {
-    font-family: var(--headline-font);
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0;
-    color: var(--text-primary);
-  }
-
-  .news-section {
-    margin-bottom: 4rem;
-  }
-
-  .section-header {
     margin-bottom: 2rem;
   }
 
-  .section-title {
-    font-family: var(--headline-font);
-    font-size: 1.8rem;
+  .digest-title {
+    font-family: var(--display);
+    font-size: 2rem;
     font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 1rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .section-icon {
-    width: 28px;
-    height: 28px;
-    display: inline-flex;
-    color: var(--accent-color);
-    flex-shrink: 0;
-  }
-
-  .section-icon :global(svg) {
-    width: 100%;
-    height: 100%;
-  }
-
-  .section-divider {
-    border: none;
-    border-top: 2px solid var(--text-primary);
     margin: 0;
-    width: 100%;
+    color: var(--ink-muted);
   }
 
-  .posts-grid {
+  /* Section chrome */
+  .section {
+    margin-bottom: 3rem;
+  }
+
+  .section-rule-container {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-rule {
+    border: none;
+    height: 3px;
+    background: var(--rule);
+    margin: 0 0 0.6rem;
+  }
+
+  .section-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .section-label {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+  }
+
+  .section-source {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+  }
+
+  /* Post grid layouts */
+  .layout-featured {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-    margin-top: 2rem;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 0;
   }
 
-  .post-article {
-    padding: 0 0 2.5rem 0;
-    border-bottom: 1px solid var(--border-color);
+  .layout-featured .post-lead {
+    grid-row: 1 / -1;
+    padding-right: 2rem;
+    border-right: 1px solid var(--rule-light);
   }
 
-  .post-article:last-child {
+  .layout-featured .post-standard {
+    padding-left: 2rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--rule-faint);
+  }
+
+  .layout-featured .post-standard:last-child {
     border-bottom: none;
+    margin-bottom: 0;
     padding-bottom: 0;
   }
 
-  .post-header {
-    margin-bottom: 1rem;
+  .layout-standard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
   }
 
-  .post-title {
-    font-family: var(--headline-font);
-    font-size: 1.4rem;
+  .layout-standard .post-standard:first-child {
+    padding-right: 2rem;
+    border-right: 1px solid var(--rule-light);
+  }
+
+  .layout-standard .post-standard:nth-child(2) {
+    padding-left: 2rem;
+  }
+
+  .layout-standard .post-standard:only-child {
+    grid-column: 1 / -1;
+    padding-right: 0;
+    border-right: none;
+  }
+
+  /* Post styles */
+  .post-headline {
+    font-family: var(--display);
     font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 0.5rem 0;
-    line-height: 1.3;
+    color: var(--ink);
+    margin: 0 0 0.4rem;
+    line-height: 1.25;
   }
 
-  .post-title a {
-    color: var(--text-primary);
+  .post-lead .post-headline {
+    font-size: 1.75rem;
+  }
+
+  .post-standard .post-headline {
+    font-size: 1.25rem;
+  }
+
+  .post-headline a {
+    color: var(--ink);
     text-decoration: none;
-    transition: color 0.2s ease;
   }
 
-  .post-title a:hover {
-    color: var(--accent-color);
+  .post-headline a:hover {
+    color: var(--crimson);
   }
 
-  .post-meta {
-    display: flex;
-    gap: 1.25rem;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-    align-items: center;
+  .post-stats {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
-  .score, .comments {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
+  .stat-sep {
+    margin: 0 0.35rem;
   }
 
-  .score {
-    color: var(--accent-color);
-  }
-
-  .meta-icon {
-    width: 14px;
-    height: 14px;
-  }
-
-  .meta-icon-sm {
-    width: 12px;
-    height: 12px;
-  }
-
-  .post-content {
-    line-height: 1.75;
-  }
-
-  .post-summary {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.05rem;
-    color: var(--text-primary);
-  }
-
-  .top-comments {
-    margin-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
-    padding-top: 1.25rem;
-  }
-
-  .comments-header {
-    font-family: var(--headline-font);
+  .post-body {
+    margin: 0 0 1rem;
     font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink-light);
+  }
+
+  .post-lead .post-body {
+    font-size: 1.05rem;
+  }
+
+  /* Voices / quotes */
+  .voices {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule-faint);
+  }
+
+  .voice {
+    margin: 0 0 1rem;
+    padding: 0;
+    border: none;
+    position: relative;
+  }
+
+  .voice-text {
+    margin: 0 0 0.3rem;
+    font-size: 0.92rem;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--ink-light);
+  }
+
+  .voice-cite {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-style: normal;
+    color: var(--ink-faint);
+  }
+
+  .voice-score {
+    margin-left: 0.5rem;
+    color: var(--ink-faint);
+  }
+
+  .voice-score::before {
+    content: '\2022';
+    margin-right: 0.5rem;
+  }
+
+  .thread-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-family: var(--sans);
+    font-size: 0.8rem;
     font-weight: 600;
-    margin: 0 0 1rem 0;
-    color: var(--text-secondary);
+    color: var(--crimson);
+    text-decoration: none;
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
 
-  .comment-quote {
-    background: #fafaf8;
-    margin: 0 0 1rem 0;
-    padding: 1rem 1.25rem;
-    border-left: 3px solid var(--accent-color);
-    position: relative;
-  }
-
-  .comment-attribution {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
-  }
-
-  .comment-author {
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .comment-score {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-  }
-
-  .comment-quote p {
-    margin: 0;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: #333;
-    font-style: italic;
-  }
-
-  .read-thread {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
-    color: var(--accent-color);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
-  }
-
-  .read-thread:hover {
-    color: var(--text-primary);
-  }
-
-  .link-icon {
-    width: 14px;
-    height: 14px;
-  }
-
-  .article-footer {
-    margin-top: 4rem;
-    padding-top: 2rem;
-    border-top: 2px solid var(--border-color);
-    text-align: center;
-  }
-
-  .nav-link {
-    font-family: var(--primary-font);
-    font-size: 1.1rem;
-    color: var(--accent-color);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
-  }
-
-  .nav-link:hover {
-    color: var(--text-primary);
+  .thread-link:hover {
     text-decoration: underline;
   }
 
-  @media (min-width: 768px) {
-    .posts-grid {
-      columns: 2;
-      column-gap: 3rem;
+  /* Nav */
+  .digest-nav {
+    margin-top: 3rem;
+    padding-bottom: 1rem;
+    text-align: center;
+  }
+
+  .nav-rule {
+    border: none;
+    height: 1px;
+    background: var(--rule);
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--crimson);
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .layout-featured,
+    .layout-standard {
       display: block;
     }
 
-    .post-article {
-      break-inside: avoid;
-      margin-bottom: 2.5rem;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .article-title {
-      font-size: 2rem;
+    .layout-featured .post-lead {
+      padding-right: 0;
+      border-right: none;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--rule-light);
     }
 
-    .section-title {
-      font-size: 1.4rem;
+    .layout-featured .post-standard,
+    .layout-standard .post-standard:first-child,
+    .layout-standard .post-standard:nth-child(2) {
+      padding-left: 0;
+      padding-right: 0;
+      border-right: none;
     }
 
-    .post-title {
-      font-size: 1.2rem;
+    .layout-standard .post-standard {
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--rule-faint);
     }
 
-    .comment-quote {
-      padding: 0.75rem 1rem;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .article-title {
+    .post-lead .post-headline {
       font-size: 1.5rem;
     }
 
-    .section-title {
-      font-size: 1.2rem;
+    .digest-title {
+      font-size: 1.5rem;
     }
   }
 </style>

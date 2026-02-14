@@ -7,14 +7,7 @@ export interface Props {
 const { date, showTagline = true } = Astro.props;
 
 const formatDate = (dateStr?: string) => {
-  if (!dateStr) return new Date().toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
-  
-  const d = new Date(dateStr);
+  const d = dateStr ? new Date(dateStr) : new Date();
   return d.toLocaleDateString('en-US', { 
     weekday: 'long', 
     year: 'numeric', 
@@ -25,87 +18,131 @@ const formatDate = (dateStr?: string) => {
 ---
 
 <header class="masthead">
-  <div class="nameplate">
-    <h1>THE DAILY GRIT</h1>
-    {showTagline && <p class="tagline">Tech Insights Worth Reading</p>}
+  <div class="masthead-top-rule"></div>
+  <div class="masthead-inner">
+    <div class="masthead-left">
+      <span class="edition-label">Daily Edition</span>
+    </div>
+    <div class="masthead-center">
+      <h1 class="nameplate">The Daily Grit</h1>
+      {showTagline && <p class="tagline">"All the Signal That's Fit to Print"</p>}
+    </div>
+    <div class="masthead-right">
+      <span class="date-line">{formatDate(date)}</span>
+    </div>
   </div>
-  
-  <div class="date-line">
-    {formatDate(date)}
-  </div>
-  
-  <hr class="divider" />
+  <div class="masthead-bottom-rule"></div>
 </header>
 
 <style>
   .masthead {
-    text-align: center;
     margin-bottom: 2rem;
-    padding: 2rem 0;
-    border-bottom: 3px solid var(--text-primary);
+    padding-top: 1.5rem;
   }
 
-  .nameplate h1 {
-    font-family: var(--headline-font);
-    font-size: 4rem;
+  .masthead-top-rule {
+    height: 4px;
+    background: var(--rule);
+    margin-bottom: 2px;
+  }
+
+  .masthead-top-rule::after {
+    content: '';
+    display: block;
+    height: 1px;
+    background: var(--rule);
+    margin-top: 2px;
+  }
+
+  .masthead-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+  }
+
+  .masthead-left, .masthead-right {
+    flex: 1;
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-muted);
+  }
+
+  .masthead-right {
+    text-align: right;
+  }
+
+  .masthead-center {
+    flex: 2;
+    text-align: center;
+  }
+
+  .nameplate {
+    font-family: var(--display);
+    font-size: 3.5rem;
     font-weight: 900;
     margin: 0;
-    letter-spacing: 0.1em;
-    text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    color: var(--ink);
   }
 
   .tagline {
-    font-family: var(--primary-font);
-    font-size: 1.1rem;
+    font-family: var(--display);
+    font-size: 0.95rem;
     font-style: italic;
-    margin: 0.5rem 0 0 0;
-    color: var(--text-secondary);
+    margin: 0.4rem 0 0;
+    color: var(--ink-muted);
     font-weight: 400;
   }
 
-  .date-line {
-    font-family: var(--primary-font);
-    font-size: 1rem;
-    margin: 1.5rem 0 1rem 0;
-    color: var(--text-primary);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  .edition-label {
+    font-weight: 600;
   }
 
-  .divider {
-    border: none;
-    border-top: 1px solid var(--border-color);
-    margin: 1.5rem auto;
-    width: 80%;
+  .date-line {
+    font-weight: 400;
+  }
+
+  .masthead-bottom-rule {
+    height: 2px;
+    background: var(--rule);
+    margin-bottom: 2px;
+  }
+
+  .masthead-bottom-rule::after {
+    content: '';
+    display: block;
+    height: 1px;
+    background: var(--rule);
+    margin-top: 2px;
   }
 
   @media (max-width: 768px) {
-    .masthead {
+    .masthead-inner {
+      flex-direction: column;
+      gap: 0.5rem;
       padding: 1rem 0;
     }
 
-    .nameplate h1 {
+    .masthead-left, .masthead-right {
+      text-align: center;
+    }
+
+    .nameplate {
       font-size: 2.5rem;
-      letter-spacing: 0.05em;
-    }
-
-    .tagline {
-      font-size: 1rem;
-    }
-
-    .date-line {
-      font-size: 0.9rem;
     }
   }
 
   @media (max-width: 480px) {
-    .nameplate h1 {
+    .nameplate {
       font-size: 2rem;
     }
 
-    .tagline {
-      font-size: 0.9rem;
+    .masthead-left {
+      display: none;
     }
   }
 </style>

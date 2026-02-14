@@ -17,53 +17,92 @@ const { title, description = "The Daily Grit - Your daily digest of tech insight
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <main>
       <slot />
     </main>
+    <footer class="site-footer">
+      <div class="footer-rule"></div>
+      <p class="footer-text">The Daily Grit &middot; A curated digest of what matters in tech</p>
+    </footer>
   </body>
 </html>
 
-<style>
+<style is:global>
   :root {
-    --primary-font: 'Lora', Georgia, serif;
-    --headline-font: 'Playfair Display', serif;
-    --background: #ffffff;
-    --text-primary: #1a1a1a;
-    --text-secondary: #666666;
-    --border-color: #ddd;
-    --accent-color: #8B0000;
+    --serif: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+    --display: 'Playfair Display', Georgia, serif;
+    --sans: 'Source Sans 3', -apple-system, sans-serif;
+    --ink: #121212;
+    --ink-light: #333333;
+    --ink-muted: #666666;
+    --ink-faint: #999999;
+    --paper: #fcfcfa;
+    --paper-warm: #f7f5f0;
+    --rule: #1a1a1a;
+    --rule-light: #d4d4d4;
+    --rule-faint: #e8e8e8;
+    --crimson: #6b0f1a;
   }
 
-  * {
+  *, *::before, *::after {
     box-sizing: border-box;
   }
 
   body {
-    font-family: var(--primary-font);
-    line-height: 1.6;
-    color: var(--text-primary);
-    background: var(--background);
+    font-family: var(--serif);
+    line-height: 1.65;
+    color: var(--ink);
+    background: var(--paper);
     margin: 0;
     padding: 0;
-    font-size: 16px;
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   main {
-    max-width: 1200px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0 24px;
+  }
+
+  a {
+    color: var(--ink);
+    transition: color 0.15s ease;
+  }
+
+  a:hover {
+    color: var(--crimson);
+  }
+
+  .site-footer {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 3rem;
+  }
+
+  .footer-rule {
+    border: none;
+    height: 1px;
+    background: var(--rule);
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-text {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
   }
 
   @media (max-width: 768px) {
-    main {
-      padding: 10px;
-    }
-    
-    body {
-      font-size: 14px;
-    }
+    body { font-size: 16px; }
+    main { padding: 0 16px; }
+    .site-footer { padding: 0 16px 2rem; }
   }
 </style>

@@ -3,313 +3,422 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Masthead from '../components/Masthead.astro';
 import { getCollection } from 'astro:content';
 
-// Get all digest entries
 const digests = await getCollection('digests');
+const sortedDigests = digests.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 
-// Create a map of dates that have content
 const digestDates = new Set(
-  digests.map(digest => {
-    const date = new Date(digest.data.date);
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD format
-  })
+  digests.map(digest => new Date(digest.data.date).toISOString().split('T')[0])
 );
 
-// Generate calendar for current month (February 2026)
-const currentDate = new Date(2026, 1, 1); // February 2026
-const year = currentDate.getFullYear();
-const month = currentDate.getMonth();
-
+// Generate calendar for February 2026
+const year = 2026;
+const month = 1; // 0-indexed
 const firstDay = new Date(year, month, 1);
 const lastDay = new Date(year, month + 1, 0);
-const firstDayOfWeek = firstDay.getDay(); // 0 = Sunday
+const firstDayOfWeek = firstDay.getDay();
 const daysInMonth = lastDay.getDate();
-
 const monthName = firstDay.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-// Generate calendar days
-const calendarDays = [];
-
-// Add empty cells for days before the first day of the month
+const calendarDays: { day: string; hasContent: boolean; date: string }[] = [];
 for (let i = 0; i < firstDayOfWeek; i++) {
   calendarDays.push({ day: '', hasContent: false, date: '' });
 }
-
-// Add days of the month
 for (let day = 1; day <= daysInMonth; day++) {
   const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  calendarDays.push({
-    day: day.toString(),
-    hasContent: digestDates.has(dateStr),
-    date: dateStr
-  });
+  calendarDays.push({ day: day.toString(), hasContent: digestDates.has(dateStr), date: dateStr });
 }
+
+const sectionLabels: Record<string, string> = {
+  'ai-agents': 'AI',
+  'claudecode': 'Dev',
+  'saas': 'SaaS',
+  'digitalmarketing': 'Marketing',
+  'philosophy': 'Philosophy',
+};
 ---
 
-<BaseLayout title="The Daily Grit - Daily Tech Insights">
+<BaseLayout title="The Daily Grit">
   <Masthead />
   
-  <div class="calendar-container">
-    <h2 class="calendar-title">{monthName}</h2>
-    <div class="calendar-grid">
-      <!-- Day headers -->
-      <div class="day-header">Sun</div>
-      <div class="day-header">Mon</div>
-      <div class="day-header">Tue</div>
-      <div class="day-header">Wed</div>
-      <div class="day-header">Thu</div>
-      <div class="day-header">Fri</div>
-      <div class="day-header">Sat</div>
-      
-      <!-- Calendar days -->
-      {calendarDays.map(({ day, hasContent, date }) => (
-        <div class={`calendar-day ${hasContent ? 'has-content' : ''} ${!day ? 'empty' : ''}`}>
-          {day && hasContent ? (
-            <a href={`/digest/${date}`} class="day-link">
-              {day}
-              <span class="content-indicator">●</span>
-            </a>
-          ) : (
-            <span class="day-number">{day}</span>
+  <!-- Latest digest hero -->
+  {sortedDigests.length > 0 && (() => {
+    const latest = sortedDigests[0];
+    const leadSection = latest.data.sections[0];
+    const leadPost = leadSection?.posts[0];
+    return (
+      <section class="hero">
+        <div class="hero-lead">
+          <span class="hero-kicker">Latest Edition</span>
+          <h2 class="hero-headline">
+            <a href={`/digest/${latest.slug}`}>{latest.data.title}</a>
+          </h2>
+          {leadPost && (
+            <p class="hero-summary">
+              <strong>{leadPost.title}</strong> &mdash; {leadPost.summary.slice(0, 200)}...
+            </p>
           )}
+          <a href={`/digest/${latest.slug}`} class="hero-read">Read this edition &#8599;</a>
         </div>
-      ))}
+        <div class="hero-sidebar">
+          <h4 class="hero-sidebar-title">Also in this edition</h4>
+          <ul class="hero-topics">
+            {latest.data.sections.map(s => (
+              <li class="hero-topic">{sectionLabels[s.icon] || s.name}: {s.posts[0]?.title}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    );
+  })()}
+
+  <hr class="content-rule" />
+
+  <div class="archives-layout">
+    <!-- Calendar -->
+    <div class="calendar-panel">
+      <h3 class="panel-title">Archives</h3>
+      <p class="panel-subtitle">{monthName}</p>
+      <div class="cal-grid">
+        <span class="cal-head">S</span><span class="cal-head">M</span><span class="cal-head">T</span>
+        <span class="cal-head">W</span><span class="cal-head">T</span><span class="cal-head">F</span>
+        <span class="cal-head">S</span>
+        {calendarDays.map(({ day, hasContent, date }) => (
+          hasContent ? (
+            <a href={`/digest/${date}`} class="cal-day cal-active">{day}</a>
+          ) : (
+            <span class={`cal-day ${!day ? 'cal-empty' : ''}`}>{day}</span>
+          )
+        ))}
+      </div>
     </div>
-    
-    <div class="legend">
-      <span class="legend-item">
-        <span class="legend-indicator has-content">●</span>
-        Days with content
-      </span>
-    </div>
-  </div>
-  
-  <div class="recent-digests">
-    <h2>Recent Digests</h2>
-    <div class="digest-list">
-      {digests.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()).slice(0, 5).map(digest => {
-        const date = new Date(digest.data.date);
-        const formattedDate = date.toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          month: 'long', 
-          day: 'numeric' 
-        });
-        
-        return (
-          <article class="digest-preview">
-            <h3>
-              <a href={`/digest/${digest.slug}`}>{digest.data.title}</a>
-            </h3>
-            <p class="digest-date">{formattedDate}</p>
-            <div class="section-preview">
-              {digest.data.sections.map(section => (
-                <span class="section-tag">
-                  {section.name}
-                </span>
-              ))}
-            </div>
-          </article>
-        );
-      })}
+
+    <!-- Recent editions list -->
+    <div class="editions-panel">
+      <h3 class="panel-title">Recent Editions</h3>
+      <div class="editions-list">
+        {sortedDigests.slice(0, 7).map(digest => {
+          const d = new Date(digest.data.date);
+          const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+          const monthDay = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          return (
+            <a href={`/digest/${digest.slug}`} class="edition-row">
+              <span class="edition-date">
+                <span class="edition-day">{dayName}</span>
+                <span class="edition-monthday">{monthDay}</span>
+              </span>
+              <span class="edition-sections">
+                {digest.data.sections.map(s => (
+                  <span class="edition-tag">{sectionLabels[s.icon] || s.name}</span>
+                ))}
+              </span>
+              <span class="edition-count">{digest.data.sections.reduce((sum, s) => sum + s.posts.length, 0)} stories</span>
+            </a>
+          );
+        })}
+      </div>
     </div>
   </div>
 </BaseLayout>
 
 <style>
-  .calendar-container {
-    max-width: 800px;
-    margin: 0 auto 3rem auto;
-    padding: 2rem;
-    background: #fafafa;
-    border: 1px solid var(--border-color);
-  }
-
-  .calendar-title {
-    font-family: var(--headline-font);
-    font-size: 2.5rem;
-    text-align: center;
+  /* Hero */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 0;
     margin-bottom: 2rem;
-    color: var(--text-primary);
   }
 
-  .calendar-grid {
+  .hero-lead {
+    padding-right: 2.5rem;
+    border-right: 1px solid var(--rule-light);
+  }
+
+  .hero-kicker {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--crimson);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-headline {
+    font-family: var(--display);
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin: 0 0 1rem;
+  }
+
+  .hero-headline a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .hero-headline a:hover {
+    color: var(--crimson);
+  }
+
+  .hero-summary {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--ink-light);
+    margin: 0 0 1rem;
+  }
+
+  .hero-read {
+    font-family: var(--sans);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--crimson);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .hero-read:hover {
+    text-decoration: underline;
+  }
+
+  .hero-sidebar {
+    padding-left: 2.5rem;
+  }
+
+  .hero-sidebar-title {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    margin: 0 0 1rem;
+  }
+
+  .hero-topics {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hero-topic {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--rule-faint);
+    color: var(--ink-light);
+  }
+
+  .hero-topic:last-child {
+    border-bottom: none;
+  }
+
+  /* Content rule */
+  .content-rule {
+    border: none;
+    height: 3px;
+    background: var(--rule);
+    margin: 0 0 2rem;
+  }
+
+  /* Archives layout */
+  .archives-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    margin-bottom: 2rem;
+  }
+
+  .calendar-panel {
+    padding-right: 2.5rem;
+    border-right: 1px solid var(--rule-light);
+  }
+
+  .editions-panel {
+    padding-left: 2.5rem;
+  }
+
+  .panel-title {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+    margin: 0 0 0.25rem;
+  }
+
+  .panel-subtitle {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    margin: 0 0 1.25rem;
+  }
+
+  /* Calendar */
+  .cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 1px;
-    background: var(--border-color);
-    border: 1px solid var(--border-color);
-  }
-
-  .day-header {
-    background: var(--text-primary);
-    color: white;
-    padding: 1rem;
+    gap: 0;
     text-align: center;
-    font-weight: 600;
-    font-size: 0.9rem;
+  }
+
+  .cal-head {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--ink-muted);
+    padding: 0.4rem 0;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--rule-faint);
   }
 
-  .calendar-day {
-    background: white;
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .cal-day {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    padding: 0.55rem 0;
+    color: var(--ink-muted);
+  }
+
+  .cal-empty {
+    color: transparent;
+  }
+
+  .cal-active {
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
     position: relative;
-    transition: background-color 0.2s ease;
   }
 
-  .calendar-day.empty {
-    background: #f9f9f9;
+  .cal-active::after {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 4px;
+    background: var(--crimson);
+    border-radius: 50%;
+    margin: 2px auto 0;
   }
 
-  .calendar-day.has-content {
-    background: #f0f8f0;
+  .cal-active:hover {
+    color: var(--crimson);
   }
 
-  .calendar-day.has-content:hover {
-    background: #e6f3e6;
-  }
-
-  .day-link {
+  /* Editions list */
+  .editions-list {
     display: flex;
     flex-direction: column;
+  }
+
+  .edition-row {
+    display: flex;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    text-decoration: none;
-    color: var(--text-primary);
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: color 0.2s ease;
-  }
-
-  .day-link:hover {
-    color: var(--accent-color);
-  }
-
-  .day-number {
-    font-weight: 500;
-    color: var(--text-secondary);
-  }
-
-  .content-indicator {
-    color: var(--accent-color);
-    font-size: 0.8rem;
-    margin-top: 0.25rem;
-  }
-
-  .legend {
-    margin-top: 1rem;
-    text-align: center;
-  }
-
-  .legend-item {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-  }
-
-  .legend-indicator {
-    margin-right: 0.5rem;
-  }
-
-  .legend-indicator.has-content {
-    color: var(--accent-color);
-  }
-
-  .recent-digests {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .recent-digests h2 {
-    font-family: var(--headline-font);
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    color: var(--text-primary);
-  }
-
-  .digest-list {
-    display: grid;
     gap: 1.5rem;
-  }
-
-  .digest-preview {
-    padding: 1.5rem;
-    border: 1px solid var(--border-color);
-    background: white;
-    transition: box-shadow 0.2s ease;
-  }
-
-  .digest-preview:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  .digest-preview h3 {
-    margin: 0 0 0.5rem 0;
-    font-family: var(--headline-font);
-    font-size: 1.4rem;
-  }
-
-  .digest-preview h3 a {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rule-faint);
     text-decoration: none;
-    color: var(--text-primary);
-    transition: color 0.2s ease;
+    color: var(--ink);
+    transition: background 0.1s ease;
   }
 
-  .digest-preview h3 a:hover {
-    color: var(--accent-color);
+  .edition-row:hover {
+    background: var(--paper-warm);
   }
 
-  .digest-date {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin: 0 0 1rem 0;
-    font-style: italic;
+  .edition-row:last-child {
+    border-bottom: none;
   }
 
-  .section-preview {
+  .edition-date {
+    display: flex;
+    flex-direction: column;
+    min-width: 60px;
+  }
+
+  .edition-day {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+  }
+
+  .edition-monthday {
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .edition-sections {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.35rem;
+    flex: 1;
   }
 
-  .section-tag {
-    background: #f0f0f0;
-    padding: 0.25rem 0.5rem;
-    border-radius: 3px;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+  .edition-tag {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--rule-light);
+    color: var(--ink-muted);
   }
 
+  .edition-count {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+
+  /* Mobile */
   @media (max-width: 768px) {
-    .calendar-container {
-      padding: 1rem;
-      margin: 0 0 2rem 0;
+    .hero {
+      display: block;
     }
 
-    .calendar-title {
-      font-size: 2rem;
+    .hero-lead {
+      padding-right: 0;
+      border-right: none;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--rule-light);
     }
 
-    .calendar-day {
-      min-height: 60px;
+    .hero-sidebar {
+      padding-left: 0;
     }
 
-    .day-link {
-      font-size: 1rem;
+    .hero-headline {
+      font-size: 1.75rem;
     }
 
-    .day-header {
-      padding: 0.5rem;
-      font-size: 0.8rem;
+    .archives-layout {
+      display: block;
     }
 
-    .digest-preview {
-      padding: 1rem;
+    .calendar-panel {
+      padding-right: 0;
+      border-right: none;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--rule-light);
+    }
+
+    .editions-panel {
+      padding-left: 0;
+    }
+
+    .edition-sections {
+      display: none;
     }
   }
 </style>
