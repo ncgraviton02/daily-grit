@@ -1,0 +1,315 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Masthead from '../../components/Masthead.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const digests = await getCollection('digests');
+  return digests.map((digest) => ({
+    params: { date: digest.slug },
+    props: { digest },
+  }));
+}
+
+const { digest } = Astro.props;
+const { data, render } = digest;
+const { Content } = await render();
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+};
+---
+
+<BaseLayout title={`${data.title} | The Daily Grit`}>
+  <Masthead date={data.date.toISOString()} showTagline={false} />
+  
+  <article class="digest-article">
+    <header class="article-header">
+      <h1 class="article-title">{data.title}</h1>
+    </header>
+    
+    <div class="article-content">
+      {data.sections.map((section, sectionIndex) => (
+        <section class="news-section">
+          <header class="section-header">
+            <h2 class="section-title">
+              <span class="section-emoji">{section.emoji}</span>
+              {section.name}
+            </h2>
+            <hr class="section-divider" />
+          </header>
+          
+          <div class="posts-grid">
+            {section.posts.map((post, postIndex) => (
+              <article class="post-article">
+                <header class="post-header">
+                  <h3 class="post-title">{post.title}</h3>
+                  <div class="post-meta">
+                    <span class="score">↑ {post.score.toLocaleString()}</span>
+                    <span class="comments">{post.comments} comments</span>
+                  </div>
+                </header>
+                
+                <div class="post-content">
+                  <p class="post-summary">{post.summary}</p>
+                  
+                  {post.topComments && post.topComments.length > 0 && (
+                    <div class="top-comments">
+                      <h4 class="comments-header">Top Comments</h4>
+                      {post.topComments.map((comment) => (
+                        <blockquote class="comment-quote">
+                          <p>{comment}</p>
+                        </blockquote>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+    
+    <footer class="article-footer">
+      <nav class="article-nav">
+        <a href="/" class="nav-link">← Back to Calendar</a>
+      </nav>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .digest-article {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+  }
+
+  .article-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .article-title {
+    font-family: var(--headline-font);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+  }
+
+  .news-section {
+    margin-bottom: 4rem;
+  }
+
+  .section-header {
+    margin-bottom: 2rem;
+  }
+
+  .section-title {
+    font-family: var(--headline-font);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .section-emoji {
+    font-size: 1.8rem;
+  }
+
+  .section-divider {
+    border: none;
+    border-top: 2px solid var(--text-primary);
+    margin: 0;
+    width: 100%;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .post-article {
+    background: #fafafa;
+    padding: 1.5rem;
+    border-left: 4px solid var(--accent-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .post-article:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .post-header {
+    margin-bottom: 1rem;
+  }
+
+  .post-title {
+    font-family: var(--headline-font);
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+  }
+
+  .post-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .score {
+    color: var(--accent-color);
+  }
+
+  .post-content {
+    line-height: 1.7;
+  }
+
+  .post-summary {
+    margin: 0 0 1.5rem 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+  }
+
+  .top-comments {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+  }
+
+  .comments-header {
+    font-family: var(--headline-font);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+  }
+
+  .comment-quote {
+    background: white;
+    margin: 0 0 1rem 0;
+    padding: 1rem;
+    border-left: 3px solid var(--accent-color);
+    font-style: italic;
+    position: relative;
+  }
+
+  .comment-quote::before {
+    content: '"';
+    font-size: 2rem;
+    color: var(--accent-color);
+    position: absolute;
+    top: -0.5rem;
+    left: 0.5rem;
+    font-family: var(--headline-font);
+  }
+
+  .comment-quote p {
+    margin: 0;
+    padding-left: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .article-footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border-color);
+    text-align: center;
+  }
+
+  .nav-link {
+    font-family: var(--primary-font);
+    font-size: 1.1rem;
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--text-primary);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .posts-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .article-title {
+      font-size: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+    }
+
+    .post-article {
+      padding: 1rem;
+    }
+
+    .post-title {
+      font-size: 1.2rem;
+    }
+
+    .comment-quote {
+      padding: 0.75rem;
+    }
+
+    .comment-quote p {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .article-title {
+      font-size: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      flex-direction: column;
+      gap: 0.25rem;
+      text-align: center;
+    }
+
+    .post-meta {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+  }
+
+  /* Newspaper column layout for larger screens */
+  @media (min-width: 1024px) {
+    .posts-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1400px) {
+    .posts-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

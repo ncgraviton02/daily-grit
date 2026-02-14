@@ -1,0 +1,111 @@
+---
+export interface Props {
+  date?: string;
+  showTagline?: boolean;
+}
+
+const { date, showTagline = true } = Astro.props;
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return new Date().toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+};
+---
+
+<header class="masthead">
+  <div class="nameplate">
+    <h1>THE DAILY GRIT</h1>
+    {showTagline && <p class="tagline">Tech Insights Worth Reading</p>}
+  </div>
+  
+  <div class="date-line">
+    {formatDate(date)}
+  </div>
+  
+  <hr class="divider" />
+</header>
+
+<style>
+  .masthead {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem 0;
+    border-bottom: 3px solid var(--text-primary);
+  }
+
+  .nameplate h1 {
+    font-family: var(--headline-font);
+    font-size: 4rem;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 0.1em;
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+  }
+
+  .tagline {
+    font-family: var(--primary-font);
+    font-size: 1.1rem;
+    font-style: italic;
+    margin: 0.5rem 0 0 0;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  .date-line {
+    font-family: var(--primary-font);
+    font-size: 1rem;
+    margin: 1.5rem 0 1rem 0;
+    color: var(--text-primary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 1.5rem auto;
+    width: 80%;
+  }
+
+  @media (max-width: 768px) {
+    .masthead {
+      padding: 1rem 0;
+    }
+
+    .nameplate h1 {
+      font-size: 2.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .tagline {
+      font-size: 1rem;
+    }
+
+    .date-line {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .nameplate h1 {
+      font-size: 2rem;
+    }
+
+    .tagline {
+      font-size: 0.9rem;
+    }
+  }
+</style>
