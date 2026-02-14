@@ -15,13 +15,12 @@ const { digest } = Astro.props;
 const { data, render } = digest;
 const { Content } = await render();
 
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
+const sectionIcons: Record<string, string> = {
+  'ai-agents': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M12 4V2"/><path d="M9 5.5L7.5 4"/><path d="M15 5.5L16.5 4"/></svg>`,
+  'claudecode': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>`,
+  'saas': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+  'digitalmarketing': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  'philosophy': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
 };
 ---
 
@@ -34,24 +33,34 @@ const formatDate = (date: Date) => {
     </header>
     
     <div class="article-content">
-      {data.sections.map((section, sectionIndex) => (
+      {data.sections.map((section) => (
         <section class="news-section">
           <header class="section-header">
             <h2 class="section-title">
-              <span class="section-emoji">{section.emoji}</span>
+              <span class="section-icon" set:html={sectionIcons[section.icon] || ''} />
               {section.name}
             </h2>
             <hr class="section-divider" />
           </header>
           
           <div class="posts-grid">
-            {section.posts.map((post, postIndex) => (
+            {section.posts.map((post) => (
               <article class="post-article">
                 <header class="post-header">
-                  <h3 class="post-title">{post.title}</h3>
+                  <h3 class="post-title">
+                    {post.permalink ? (
+                      <a href={post.permalink} target="_blank" rel="noopener noreferrer">{post.title}</a>
+                    ) : post.title}
+                  </h3>
                   <div class="post-meta">
-                    <span class="score">↑ {post.score.toLocaleString()}</span>
-                    <span class="comments">{post.comments} comments</span>
+                    <span class="score">
+                      <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                      {post.score.toLocaleString()}
+                    </span>
+                    <span class="comments">
+                      <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                      {post.comments}
+                    </span>
                   </div>
                 </header>
                 
@@ -60,13 +69,29 @@ const formatDate = (date: Date) => {
                   
                   {post.topComments && post.topComments.length > 0 && (
                     <div class="top-comments">
-                      <h4 class="comments-header">Top Comments</h4>
+                      <h4 class="comments-header">Notable Voices</h4>
                       {post.topComments.map((comment) => (
                         <blockquote class="comment-quote">
-                          <p>{comment}</p>
+                          <div class="comment-attribution">
+                            <span class="comment-author">{comment.author}</span>
+                            {comment.score !== undefined && (
+                              <span class="comment-score">
+                                <svg class="meta-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                                {comment.score}
+                              </span>
+                            )}
+                          </div>
+                          <p>{comment.text}</p>
                         </blockquote>
                       ))}
                     </div>
+                  )}
+                  
+                  {post.permalink && (
+                    <a href={post.permalink} class="read-thread" target="_blank" rel="noopener noreferrer">
+                      Read full thread
+                      <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
                   )}
                 </div>
               </article>
@@ -78,7 +103,7 @@ const formatDate = (date: Date) => {
     
     <footer class="article-footer">
       <nav class="article-nav">
-        <a href="/" class="nav-link">← Back to Calendar</a>
+        <a href="/" class="nav-link">Back to Calendar</a>
       </nav>
     </footer>
   </article>
@@ -116,17 +141,26 @@ const formatDate = (date: Date) => {
 
   .section-title {
     font-family: var(--headline-font);
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 1rem 0;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 
-  .section-emoji {
-    font-size: 1.8rem;
+  .section-icon {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    color: var(--accent-color);
+    flex-shrink: 0;
+  }
+
+  .section-icon :global(svg) {
+    width: 100%;
+    height: 100%;
   }
 
   .section-divider {
@@ -138,21 +172,19 @@ const formatDate = (date: Date) => {
 
   .posts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
     margin-top: 2rem;
   }
 
   .post-article {
-    background: #fafafa;
-    padding: 1.5rem;
-    border-left: 4px solid var(--accent-color);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 0 0 2.5rem 0;
+    border-bottom: 1px solid var(--border-color);
   }
 
-  .post-article:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  .post-article:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
   }
 
   .post-header {
@@ -161,73 +193,134 @@ const formatDate = (date: Date) => {
 
   .post-title {
     font-family: var(--headline-font);
-    font-size: 1.3rem;
-    font-weight: 600;
+    font-size: 1.4rem;
+    font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 0.5rem 0;
     line-height: 1.3;
   }
 
+  .post-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .post-title a:hover {
+    color: var(--accent-color);
+  }
+
   .post-meta {
     display: flex;
-    gap: 1rem;
-    font-size: 0.9rem;
+    gap: 1.25rem;
+    font-size: 0.85rem;
     color: var(--text-secondary);
     font-weight: 500;
+    align-items: center;
+  }
+
+  .score, .comments {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
   }
 
   .score {
     color: var(--accent-color);
   }
 
+  .meta-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .meta-icon-sm {
+    width: 12px;
+    height: 12px;
+  }
+
   .post-content {
-    line-height: 1.7;
+    line-height: 1.75;
   }
 
   .post-summary {
     margin: 0 0 1.5rem 0;
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--text-primary);
   }
 
   .top-comments {
     margin-top: 1.5rem;
     border-top: 1px solid var(--border-color);
-    padding-top: 1rem;
+    padding-top: 1.25rem;
   }
 
   .comments-header {
     font-family: var(--headline-font);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     margin: 0 0 1rem 0;
-    color: var(--text-primary);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
 
   .comment-quote {
-    background: white;
+    background: #fafaf8;
     margin: 0 0 1rem 0;
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     border-left: 3px solid var(--accent-color);
-    font-style: italic;
     position: relative;
   }
 
-  .comment-quote::before {
-    content: '"';
-    font-size: 2rem;
-    color: var(--accent-color);
-    position: absolute;
-    top: -0.5rem;
-    left: 0.5rem;
-    font-family: var(--headline-font);
+  .comment-attribution {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .comment-author {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .comment-score {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
   }
 
   .comment-quote p {
     margin: 0;
-    padding-left: 1.5rem;
     font-size: 0.95rem;
-    line-height: 1.5;
+    line-height: 1.6;
+    color: #333;
+    font-style: italic;
+  }
+
+  .read-thread {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .read-thread:hover {
+    color: var(--text-primary);
+  }
+
+  .link-icon {
+    width: 14px;
+    height: 14px;
   }
 
   .article-footer {
@@ -251,22 +344,26 @@ const formatDate = (date: Date) => {
     text-decoration: underline;
   }
 
-  @media (max-width: 768px) {
+  @media (min-width: 768px) {
     .posts-grid {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
+      columns: 2;
+      column-gap: 3rem;
+      display: block;
     }
 
+    .post-article {
+      break-inside: avoid;
+      margin-bottom: 2.5rem;
+    }
+  }
+
+  @media (max-width: 768px) {
     .article-title {
       font-size: 2rem;
     }
 
     .section-title {
-      font-size: 1.5rem;
-    }
-
-    .post-article {
-      padding: 1rem;
+      font-size: 1.4rem;
     }
 
     .post-title {
@@ -274,11 +371,7 @@ const formatDate = (date: Date) => {
     }
 
     .comment-quote {
-      padding: 0.75rem;
-    }
-
-    .comment-quote p {
-      font-size: 0.9rem;
+      padding: 0.75rem 1rem;
     }
   }
 
@@ -288,28 +381,7 @@ const formatDate = (date: Date) => {
     }
 
     .section-title {
-      font-size: 1.3rem;
-      flex-direction: column;
-      gap: 0.25rem;
-      text-align: center;
-    }
-
-    .post-meta {
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-  }
-
-  /* Newspaper column layout for larger screens */
-  @media (min-width: 1024px) {
-    .posts-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1400px) {
-    .posts-grid {
-      grid-template-columns: repeat(3, 1fr);
+      font-size: 1.2rem;
     }
   }
 </style>
