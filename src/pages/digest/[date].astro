@@ -41,16 +41,14 @@ const sectionLabels: Record<string, string> = {
           </div>
         </div>
         
-        {/* Section hero image */}
-        {section.image && (
-          <div class="section-image">
-            <img src={section.image} alt={`Editorial illustration for ${section.name}`} loading="lazy" />
-          </div>
-        )}
-
-        {/* Lead story — full width */}
+        {/* Lead story — full width, with image floated left */}
         {section.posts[0] && (
           <article class="post post-lead">
+            {section.image && (
+              <div class="lead-image">
+                <img src={section.image} alt={`Editorial illustration for ${section.name}`} loading="lazy" />
+              </div>
+            )}
             <h3 class="post-headline">
               {section.posts[0].permalink ? (
                 <a href={section.posts[0].permalink} target="_blank" rel="noopener noreferrer">{section.posts[0].title}</a>
@@ -178,25 +176,31 @@ const sectionLabels: Record<string, string> = {
     letter-spacing: 0.05em;
   }
 
-  /* Section hero image */
-  .section-image {
-    margin-bottom: 1.5rem;
+  /* Lead image — square, floated left */
+  .lead-image {
+    float: left;
+    width: 260px;
+    height: 260px;
+    margin: 0.25rem 2rem 1rem 0;
     overflow: hidden;
-    max-height: 320px;
   }
 
-  .section-image img {
+  .lead-image img {
     width: 100%;
-    height: 320px;
+    height: 100%;
     object-fit: cover;
     display: block;
-    filter: grayscale(30%) contrast(1.05);
+    filter: grayscale(20%) contrast(1.05);
   }
 
   @media (max-width: 768px) {
-    .section-image, .section-image img {
-      max-height: 200px;
-      height: 200px;
+    .lead-image {
+      float: none;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1;
+      max-width: 280px;
+      margin: 0 0 1rem 0;
     }
   }
 
@@ -205,6 +209,7 @@ const sectionLabels: Record<string, string> = {
     padding-bottom: 2rem;
     margin-bottom: 2rem;
     border-bottom: 1px solid var(--rule-light);
+    overflow: hidden; /* clear float */
   }
 
   /* Remaining posts — side by side columns */
