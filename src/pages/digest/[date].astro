@@ -41,45 +41,69 @@ const sectionLabels: Record<string, string> = {
           </div>
         </div>
         
-        <div class={`section-posts ${section.posts.length >= 3 ? 'layout-featured' : 'layout-standard'}`}>
-          {section.posts.map((post, pi) => (
-            <article class={`post ${pi === 0 && section.posts.length >= 3 ? 'post-lead' : 'post-standard'}`}>
-              <h3 class="post-headline">
-                {post.permalink ? (
-                  <a href={post.permalink} target="_blank" rel="noopener noreferrer">{post.title}</a>
-                ) : post.title}
-              </h3>
-              
-              <div class="post-stats">
-                <span class="stat">{post.score} points</span>
-                <span class="stat-sep">&middot;</span>
-                <span class="stat">{post.comments} comments</span>
+        {/* Lead story — full width */}
+        {section.posts[0] && (
+          <article class="post post-lead">
+            <h3 class="post-headline">
+              {section.posts[0].permalink ? (
+                <a href={section.posts[0].permalink} target="_blank" rel="noopener noreferrer">{section.posts[0].title}</a>
+              ) : section.posts[0].title}
+            </h3>
+            <div class="post-stats">
+              <span class="stat">{section.posts[0].score} points</span>
+              <span class="stat-sep">&middot;</span>
+              <span class="stat">{section.posts[0].comments} comments</span>
+            </div>
+            <p class="post-body">{section.posts[0].summary}</p>
+            {section.posts[0].topComments && section.posts[0].topComments.length > 0 && (
+              <div class="voices">
+                {section.posts[0].topComments.map((c) => (
+                  <blockquote class="voice">
+                    <p class="voice-text">{c.text}</p>
+                    <cite class="voice-cite">&mdash; {c.author}{c.score !== undefined && <span class="voice-score">{c.score} pts</span>}</cite>
+                  </blockquote>
+                ))}
               </div>
-              
-              <p class="post-body">{post.summary}</p>
-              
-              {post.topComments && post.topComments.length > 0 && (
-                <div class="voices">
-                  {post.topComments.map((c) => (
-                    <blockquote class="voice">
-                      <p class="voice-text">{c.text}</p>
-                      <cite class="voice-cite">
-                        &mdash; {c.author}
-                        {c.score !== undefined && <span class="voice-score">{c.score} pts</span>}
-                      </cite>
-                    </blockquote>
-                  ))}
+            )}
+            {section.posts[0].permalink && (
+              <a href={section.posts[0].permalink} class="thread-link" target="_blank" rel="noopener noreferrer">Read full thread &#8599;</a>
+            )}
+          </article>
+        )}
+
+        {/* Remaining stories — side by side */}
+        {section.posts.length > 1 && (
+          <div class="remaining-posts">
+            {section.posts.slice(1).map((post) => (
+              <article class="post post-standard">
+                <h3 class="post-headline">
+                  {post.permalink ? (
+                    <a href={post.permalink} target="_blank" rel="noopener noreferrer">{post.title}</a>
+                  ) : post.title}
+                </h3>
+                <div class="post-stats">
+                  <span class="stat">{post.score} points</span>
+                  <span class="stat-sep">&middot;</span>
+                  <span class="stat">{post.comments} comments</span>
                 </div>
-              )}
-              
-              {post.permalink && (
-                <a href={post.permalink} class="thread-link" target="_blank" rel="noopener noreferrer">
-                  Read full thread &#8599;
-                </a>
-              )}
-            </article>
-          ))}
-        </div>
+                <p class="post-body">{post.summary}</p>
+                {post.topComments && post.topComments.length > 0 && (
+                  <div class="voices">
+                    {post.topComments.map((c) => (
+                      <blockquote class="voice">
+                        <p class="voice-text">{c.text}</p>
+                        <cite class="voice-cite">&mdash; {c.author}{c.score !== undefined && <span class="voice-score">{c.score} pts</span>}</cite>
+                      </blockquote>
+                    ))}
+                  </div>
+                )}
+                {post.permalink && (
+                  <a href={post.permalink} class="thread-link" target="_blank" rel="noopener noreferrer">Read full thread &#8599;</a>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     ))}
     
@@ -147,49 +171,40 @@ const sectionLabels: Record<string, string> = {
     letter-spacing: 0.05em;
   }
 
-  /* Post grid layouts */
-  .layout-featured {
+  /* Lead story — full width, prominent */
+  .post-lead {
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--rule-light);
+  }
+
+  /* Remaining posts — side by side columns */
+  .remaining-posts {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 0;
   }
 
-  .layout-featured .post-lead {
-    grid-row: 1 / -1;
+  .remaining-posts .post-standard:nth-child(odd) {
     padding-right: 2rem;
     border-right: 1px solid var(--rule-light);
   }
 
-  .layout-featured .post-standard {
+  .remaining-posts .post-standard:nth-child(even) {
     padding-left: 2rem;
+  }
+
+  .remaining-posts .post-standard {
     padding-bottom: 1.5rem;
     margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--rule-faint);
   }
 
-  .layout-featured .post-standard:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
+  /* Single remaining post spans full width */
+  .remaining-posts:has(.post-standard:only-child) {
+    grid-template-columns: 1fr;
   }
 
-  .layout-standard {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-  }
-
-  .layout-standard .post-standard:first-child {
-    padding-right: 2rem;
-    border-right: 1px solid var(--rule-light);
-  }
-
-  .layout-standard .post-standard:nth-child(2) {
-    padding-left: 2rem;
-  }
-
-  .layout-standard .post-standard:only-child {
-    grid-column: 1 / -1;
+  .remaining-posts .post-standard:only-child {
     padding-right: 0;
     border-right: none;
   }
@@ -327,30 +342,20 @@ const sectionLabels: Record<string, string> = {
 
   /* Mobile */
   @media (max-width: 768px) {
-    .layout-featured,
-    .layout-standard {
-      display: block;
+    .remaining-posts {
+      grid-template-columns: 1fr;
     }
 
-    .layout-featured .post-lead {
+    .remaining-posts .post-standard:nth-child(odd) {
       padding-right: 0;
       border-right: none;
-      margin-bottom: 2rem;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid var(--rule-light);
     }
 
-    .layout-featured .post-standard,
-    .layout-standard .post-standard:first-child,
-    .layout-standard .post-standard:nth-child(2) {
+    .remaining-posts .post-standard:nth-child(even) {
       padding-left: 0;
-      padding-right: 0;
-      border-right: none;
     }
 
-    .layout-standard .post-standard {
-      margin-bottom: 2rem;
-      padding-bottom: 2rem;
+    .remaining-posts .post-standard {
       border-bottom: 1px solid var(--rule-faint);
     }
 
