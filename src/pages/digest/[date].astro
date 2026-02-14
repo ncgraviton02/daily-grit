@@ -30,6 +30,34 @@ const sectionLabels: Record<string, string> = {
     <header class="digest-header">
       <h1 class="digest-title">{data.title}</h1>
     </header>
+
+    {/* Hero: Artwork + Poem (left) | Grit Story (right) */}
+    {(data.artwork || data.grit) && (
+      <section class="hero-features">
+        {data.artwork && (
+          <div class="hero-artwork">
+            <div class="artwork-frame">
+              <img src={data.artwork.image} alt="Artwork of the Day" loading="eager" />
+            </div>
+            <div class="artwork-poem">
+              <h4 class="feature-label">Artwork of the Day</h4>
+              <pre class="poem">{data.artwork.poem}</pre>
+            </div>
+          </div>
+        )}
+        {data.grit && (
+          <div class="hero-grit">
+            <h4 class="feature-label">Faces of Grit</h4>
+            <div class="grit-portrait">
+              <img src={data.grit.portrait} alt={`Portrait of ${data.grit.name}`} loading="eager" />
+            </div>
+            <h3 class="grit-name">{data.grit.name}</h3>
+            <p class="grit-tagline">{data.grit.tagline}</p>
+            <div class="grit-story">{data.grit.story}</div>
+          </div>
+        )}
+      </section>
+    )}
     
     {data.sections.map((section, si) => (
       <section class="section">
@@ -136,6 +164,119 @@ const sectionLabels: Record<string, string> = {
     font-weight: 700;
     margin: 0;
     color: var(--ink-muted);
+  }
+
+  /* Hero features: Artwork + Grit Story */
+  .hero-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 3px solid var(--rule);
+  }
+
+  .hero-artwork {
+    padding-right: 2.5rem;
+    border-right: 1px solid var(--rule-light);
+  }
+
+  .artwork-frame {
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+  }
+
+  .artwork-frame img {
+    width: 100%;
+    display: block;
+  }
+
+  .artwork-poem {
+    /* poem area */
+  }
+
+  .feature-label {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--crimson);
+    margin: 0 0 0.75rem;
+  }
+
+  .poem {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--ink-light);
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  .hero-grit {
+    padding-left: 2.5rem;
+  }
+
+  .grit-portrait {
+    width: 180px;
+    height: 180px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .grit-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .grit-name {
+    font-family: var(--display);
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin: 0 0 0.25rem;
+    line-height: 1.2;
+  }
+
+  .grit-tagline {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink-muted);
+    margin: 0 0 1rem;
+  }
+
+  .grit-story {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--ink-light);
+  }
+
+  @media (max-width: 768px) {
+    .hero-features {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-artwork {
+      padding-right: 0;
+      border-right: none;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--rule-light);
+    }
+
+    .hero-grit {
+      padding-left: 0;
+    }
+
+    .grit-portrait {
+      width: 140px;
+      height: 140px;
+    }
   }
 
   /* Section chrome */
